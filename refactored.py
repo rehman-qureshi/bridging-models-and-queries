@@ -287,35 +287,34 @@ def build_mirrored_matrix(activities, primary_relations):
 if __name__ == "__main__":
     activities1 = ['CPR', 'KPR', 'CPO', 'RG', 'PQC', 'RI', 'SP', 'CO', 'RR']
     data1 = [
-        ['-', '→', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['←', '-', '→', '-', '-', '-', '-', '-', '-', '-'],
-        ['-', '←', '-', '→', '-', '-', '-', '-', '-', '→'],
-        ['-', '-', '←', '-', '→', '-', '-', '-', '-', '-'],
-        ['-', '-', '-', '←', '-', '→', '-', '-', '-', '-'],
-        ['-', '-', '-', '-', '←', '-', '→', '-', '-', '-'],
-        ['-', '-', '-', '-', '-', '←', '-', '→', '-', '-'],
-        ['-', '-', '-', '-', '-', '-', '←', '-', '→', '-'],
-        ['-', '-', '-', '-', '-', '-', '-', '←', '-', '-'],
-        ['-', '-', '←', '-', '-', '-', '-', '-', '-', '-']
+        ['-', '→', '-', '-', '-', '-', '-', '-', '-'],
+        ['←', '-', '→', '-', '-', '-', '-', '-', '→'],
+        ['-', '←', '-', '→', '-', '-', '-', '-', '-'],
+        ['-', '-', '←', '-', '→', '-', '-', '-', '-'],
+        ['-', '-', '-', '←', '-', '→', '-', '-', '-'],
+        ['-', '-', '-', '-', '←', '-', '→', '-', '-'],
+        ['-', '-', '-', '-', '-', '←', '-', '→', '-'],
+        ['-', '-', '-', '-', '-', '-', '←', '-', '-'],
+        ['-', '←', '-', '-', '-', '-', '-', '-', '-']
     ]
     df1 = pd.DataFrame(data1, index=activities1, columns=activities1)
     d1, e1_matrix = parse_relation_matrix(df1)
     e1_tc = compute_transitive_closure(d1)
     updated_df1 = update_matrix_with_tc(df1, e1_tc)
     final_e1 = e1_matrix.union(e1_tc)
-    constraints = generate_constraints(d1, final_e1)
+    all_activities1 = set(df1.columns)
+    constraints = generate_constraints(d1, final_e1, all_activities1)
     pretty_print_results("Running Example from Paper", df1, updated_df1, d1, final_e1, constraints)
 
-
     activities = ['A', 'B', 'C', 'D']
-    start_activities = ['A']
     primary_relations = [('A', 'B', '→'), ('B', 'C', '||'), ('C', 'D', '→')]
     df = build_mirrored_matrix(activities, primary_relations)
     d, e_matrix = parse_relation_matrix(df)
     e_tc = compute_transitive_closure(d)
     updated_df = update_matrix_with_tc(df, e_tc)
     final_e = e_matrix.union(e_tc)
-    constraints = generate_constraints(d, final_e)
+    all_activities = set(df.columns)
+    constraints = generate_constraints(d, final_e, all_activities)
     pretty_print_results("Simple Example with Parallelism", df, updated_df, d, final_e, constraints)
 
     activities = ['A', 'B', 'C', 'D']
@@ -324,7 +323,8 @@ if __name__ == "__main__":
     e_tc = compute_transitive_closure(d)
     updated_df = update_matrix_with_tc(df, e_tc)
     final_e = e_matrix.union(e_tc)
-    constraints = generate_constraints(d, final_e)
+    all_activities = set(df.columns)
+    constraints = generate_constraints(d, final_e, all_activities)
     pretty_print_results("Example with Parallelism", df, updated_df, d, final_e, constraints)
 
 
