@@ -3,8 +3,19 @@ import pandas as pd
 
 
 # Define the structure for the declarative constraints for clarity
+Init = namedtuple('Init', ['activities'])
 ChainResponse = namedtuple('ChainResponse', ['antecedent', 'consequent'])
 AlternateResponse = namedtuple('AlternateResponse', ['antecedent', 'consequent'])
+
+
+def get_start_activities(D, all_activities):
+    """
+    Identifies start activities from the set of directly-follows relations.
+    Start activities are those that never appear as a consequent.
+    """
+    consequents = {b for a, b in D}
+    start_activities = all_activities - consequents
+    return start_activities
 
 
 def parse_relation_matrix(df):
@@ -147,7 +158,7 @@ def is_optional_activity(x, D):
     return found_valid_path_to_check
 
 
-def generate_binary_constraints(D, E):
+def generate_constraints(D, E, all_activities):
     """
     Generates a set of declarative binary constraints based on directly-follows (D)
     and eventually-follows (E) relations, using the detailed IsOptionalActivity logic.
@@ -155,11 +166,17 @@ def generate_binary_constraints(D, E):
     Args:
         D (set): A set of tuples (a, b) representing that activity b directly follows a.
         E (set): A set of tuples (a, b) representing that activity b eventually follows a.
+        all_activities (list): A list of all activities in the process.
 
     Returns:
-        set: A set of declarative constraints (ChainResponse and AlternateResponse).
+        set: A set of declarative constraints (Init, ChainResponse and AlternateResponse).
     """
     C = set()
+
+    # Add Init constraint for identified start activities
+    start_activities = get_start_activities(D, set(all_activities))
+    if start_activities:
+        C.add(Init(activities=frozenset(start_activities)))
     A_D = {a for a, b in D}
 
     for a in A_D:
@@ -179,7 +196,7 @@ def generate_binary_constraints(D, E):
 
     A_E = {a for a, b in E}
     for a in A_E:
-        S = {x for source, x in E if source == a and (source, x) not in D}
+        S = {x for source, x in E if source == a and (source, x) not in D and (source, x) not in compute_transitive_closure(D)}
         if S:
             C.add(AlternateResponse(antecedent=frozenset({a}), consequent=frozenset(S)))
 
@@ -252,25 +269,23 @@ def pretty_print_results(title, original_df, updated_df, D, final_E, constraints
             print(constraint)
     print("\n\n")
 
-def build_mirrored_matrix(activities, start_activities, primary_relations):
-    """Builds a relationally complete matrix with an artificial 'Start' node."""
-    full_activities = ['Start'] + activities
-    df = pd.DataFrame('-', index=full_activities, columns=full_activities)
-    
-    for act in start_activities:
-        primary_relations.append(('Start', act, '→'))
-        
+def build_mirrored_matrix(activities, primary_relations):
+    """
+    Builds a relationally complete matrix.
+    """
+    df = pd.DataFrame('-', index=activities, columns=activities)
+
     inverse_map = {'→': '←', '←': '→', '≺': '≻', '≻': '≺', '||': '||'}
     for row_act, col_act, symbol in primary_relations:
-        if row_act in full_activities and col_act in full_activities:
+        if row_act in activities and col_act in activities:
             df.loc[row_act, col_act] = symbol
             df.loc[col_act, row_act] = inverse_map.get(symbol, '-')
-            
+
     return df
 
 
 if __name__ == "__main__":
-    activities1 = ['Start', 'CPR', 'KPR', 'CPO', 'RG', 'PQC', 'RI', 'SP', 'CO', 'RR']
+    activities1 = ['CPR', 'KPR', 'CPO', 'RG', 'PQC', 'RI', 'SP', 'CO', 'RR']
     data1 = [
         ['-', '→', '-', '-', '-', '-', '-', '-', '-', '-'],
         ['←', '-', '→', '-', '-', '-', '-', '-', '-', '-'],
@@ -288,29 +303,28 @@ if __name__ == "__main__":
     e1_tc = compute_transitive_closure(d1)
     updated_df1 = update_matrix_with_tc(df1, e1_tc)
     final_e1 = e1_matrix.union(e1_tc)
-    constraints1 = generate_binary_constraints(d1, final_e1)
-    pretty_print_results("Running Example from Paper", df1, updated_df1, d1, final_e1, constraints1)
+    constraints = generate_constraints(d1, final_e1)
+    pretty_print_results("Running Example from Paper", df1, updated_df1, d1, final_e1, constraints)
 
 
     activities = ['A', 'B', 'C', 'D']
     start_activities = ['A']
     primary_relations = [('A', 'B', '→'), ('B', 'C', '||'), ('C', 'D', '→')]
-    df = build_mirrored_matrix(activities, start_activities, primary_relations)
+    df = build_mirrored_matrix(activities, primary_relations)
     d, e_matrix = parse_relation_matrix(df)
     e_tc = compute_transitive_closure(d)
     updated_df = update_matrix_with_tc(df, e_tc)
     final_e = e_matrix.union(e_tc)
-    constraints = generate_binary_constraints(d, final_e)
+    constraints = generate_constraints(d, final_e)
     pretty_print_results("Simple Example with Parallelism", df, updated_df, d, final_e, constraints)
 
     activities = ['A', 'B', 'C', 'D']
-    start_activities = ['A']
     primary_relations = [('A', 'B', '→'), ('A', 'C', '→'), ('A', 'D', '→'), ('B', 'C', '||'), ('B', 'D', '→'), ('C', 'D', '→')]
-    df = build_mirrored_matrix(activities, start_activities, primary_relations)
+    df = build_mirrored_matrix(activities, primary_relations)
     e_tc = compute_transitive_closure(d)
     updated_df = update_matrix_with_tc(df, e_tc)
     final_e = e_matrix.union(e_tc)
-    constraints = generate_binary_constraints(d, final_e)
+    constraints = generate_constraints(d, final_e)
     pretty_print_results("Example with Parallelism", df, updated_df, d, final_e, constraints)
 
 
