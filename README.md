@@ -1,7 +1,6 @@
 # Bridging Imperative Process Models and Process Data Queries—Translation and Relaxation
 
-
-This repository provides a Python command-line tool for interactively manipulating a matrix representation of activities and their relationships. The tool supports a variety of relaxation and transformation operations on the activity matrix, can generate declarative constraints.
+This repository provides a Python command-line tool for interactively manipulating a matrix representation of activities and their relationships. The tool supports a variety of relaxation and transformation operations on the activity matrix, and can generate declarative constraints for process mining and conformance checking.
 
 ## Getting Started
 
@@ -10,6 +9,7 @@ This repository provides a Python command-line tool for interactively manipulati
 - Python 3.x
 - pandas
 - pm4py
+- Require [BPIC19_3way_IbeforeGR_standardPO_complete.xes](https://icpmconference.org/2019/icpm-2019/contests-challenges/bpi-challenge-2019/) file in cuurent folder
 
 ### Installation
 
@@ -26,20 +26,40 @@ pip install pandas pm4py
     ```bash
     python driver.py <path_to_txt_file>
     ```
-    ```example
-    python .\driver.py .\data\BPIC19-Matrix.txt
+    **Example:**
+    ```bash
+    python .\driver.py .\BPIC19-Matrix.txt
     ```
 
-2. Relaxation operations for BPIC19 Model
-- **Turn Exclusive (#) into Direct Relationship (→)** RIR, RIR
-- **Turn Direct (→) into Indirect Relationship (≺)** RIR, RIR
-- **Turn Exclusive (#) into Direct Relationship (→)** RGR, RGR
-- **Turn Direct (→) into Indirect Relationship (≺)** RGR, RGR
-- **Remove All Relationships Between Two Activities** CP, CQ
-- **Remove All Relationships Between Two Activities** ROC, CQ
-- **Remove All Relationships Between Two Activities** CPOI, CP
-- **Remove All Relationships Between Two Activities** CPOI, CQ
-- **Remove All Relationships Between Two Activities** CPOI, ROC
-- **Remove All Relationships Between Two Activities** CPRI, CP
-- **Remove All Relationships Between Two Activities** CPRI, CQ
+2. **Relaxation Operations for BPIC19 Model:**
+    - The details of relaxation operations are given in relaxation-operations.json file
+    
 
+### Features
+
+- **Matrix Manipulation:** Interactive editing and relaxation of activity relationships.
+- **Constraint Generation:** Automatic extraction of declarative constraints (e.g., ChainResponse, AlternateResponse).
+- **Conformance Checking:** Integration with PM4Py for process mining and conformance rate calculation.
+
+### Example Data Format
+
+The input text file should define activities and their relationships as Python lists:
+
+```python
+activities = ['CPRI','CPOI','ROC','CP','CQ','RGR','RIR','VCI','RPB','CI']
+data = [
+    ['-','→', '-', '-', '-', '-', '-', '-', '-', '-'],
+    ['←', '-', '→', '→', '→', '→', '→', '→', '-', '-'],
+    ['-', '←', '-', '-', '→', '→', '→', '→', '-', '-'],
+    # ... more rows ...
+]
+```
+
+### Output
+
+- Declarative constraints in readable format.
+- Conformance Rate
+
+---
+
+For more details, see the code comments and function docstrings.
