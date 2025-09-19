@@ -37,3 +37,6 @@ Desktop.ini
 
 # Pytest cache
 .pytest_cache/
+
+# Ignore all .xes files
+*.xes

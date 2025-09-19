@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "type":3,
+    "A": "RIR",
+    "B": "RIR"
+  },
+  {
+    "id": 2,
+    "type":3,
+    "A": "RGR",
+    "B": "RGR"
+  },
+  {
+    "id": 3,
+    "type":4,
+    "A":"RIR",
+    "B":"RGR" 
+  },
+  {
+    "id":4,
+    "type":2,
+    "A":"CPOI",
+    "B":"ROC" 
+  },
+  {
+    "id":5,
+    "type":2,
+    "A":"CP",
+    "B":"CQ" 
+  },
+  {
+    "id":6,
+    "type":2,
+    "A":"CP",
+    "B":"CPRI" 
+  },
+  {
+    "id": 7,
+    "type":2,
+    "A":"CP",
+    "B":"CPOI" 
+  },
+  {
+    "id": 8,
+    "type":2,
+    "A":"CP",
+    "B":"ROC" 
+  },
+  {
+    "id":9,
+    "type":2,
+    "A":"CQ",
+    "B":"CPRI" 
+  },
+  {
+    "id": 10,
+    "type":2,
+    "A":"CQ",
+    "B":"CPOI" 
+  },
+  {
+    "id": 11,
+    "type":2,
+    "A":"CQ",
+    "B":"ROC" 
+  }
+]

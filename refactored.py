@@ -1,11 +1,16 @@
 from collections import namedtuple
 import pandas as pd
+import sys
+import ast
+import os
+import json
+from determine_conformance_rate import determine_conformance_rate_function
 
 
 # Define the structure for the declarative constraints for clarity
 ChainResponse = namedtuple('ChainResponse', ['antecedent', 'consequent'])
 AlternateResponse = namedtuple('AlternateResponse', ['antecedent', 'consequent'])
-
+AlternateResponse_P = namedtuple('AlternateResponse_P', ['antecedent', 'consequent']) # Dedicated AlternateResponse for parallel activities
 
 def parse_relation_matrix(df):
     """
@@ -29,7 +34,10 @@ def parse_relation_matrix(df):
                 # Concurrency implies a bi-directional directly-follows relationship
                 D.add((row_label, col_label))
                 D.add((col_label, row_label))
-                
+            elif symbol == '≺≻':
+                # if we have bi-directional eventually-follows relationship
+                E.add((row_label, col_label))
+                E.add((col_label, row_label))
     return D, E
 
 def update_matrix_with_tc(df: pd.DataFrame, E: set) -> pd.DataFrame:
@@ -58,7 +66,7 @@ def update_matrix_with_tc(df: pd.DataFrame, E: set) -> pd.DataFrame:
         is_forward = (a, b) in E
         is_backward = (b, a) in E
 
-        if is_forward and is_backward:
+        if is_forward and is_backward and a != b:
             # Handle bidirectional case: '≺≻'
             if updated_df.loc[a, b] not in strong_symbols:
                 updated_df.loc[a, b] = '≺≻'
@@ -66,7 +74,7 @@ def update_matrix_with_tc(df: pd.DataFrame, E: set) -> pd.DataFrame:
                 updated_df.loc[b, a] = '≺≻'
             processed_pairs.add((a, b))
             processed_pairs.add((b, a))
-        elif is_forward:
+        elif is_forward and a != b:
             # Handle one-way case: '≺' and '≻'
             if updated_df.loc[a, b] not in strong_symbols:
                 updated_df.loc[a, b] = '≺'
@@ -147,7 +155,7 @@ def is_optional_activity(x, D):
     return found_valid_path_to_check
 
 
-def generate_binary_constraints(D, E):
+def generate_binary_constraints(D, E, TC_D):
     """
     Generates a set of declarative binary constraints based on directly-follows (D)
     and eventually-follows (E) relations, using the detailed IsOptionalActivity logic.
@@ -155,7 +163,7 @@ def generate_binary_constraints(D, E):
     Args:
         D (set): A set of tuples (a, b) representing that activity b directly follows a.
         E (set): A set of tuples (a, b) representing that activity b eventually follows a.
-
+        TC_D (set): The transitive closure of the directly-follows relation D.
     Returns:
         set: A set of declarative constraints (ChainResponse and AlternateResponse).
     """
@@ -172,14 +180,14 @@ def generate_binary_constraints(D, E):
                 b, c = s_list[i], s_list[j]
                 if (b, c) in D and (c, b) in D:
                     # The algorithm adds a constraint if the activity is NOT optional.
-                    if not is_optional_activity(b, D):
-                        C.add(AlternateResponse(antecedent=frozenset({a}), consequent=frozenset({b})))
-                    if not is_optional_activity(c, D):
-                        C.add(AlternateResponse(antecedent=frozenset({a}), consequent=frozenset({c})))
-
+                    if not is_optional_activity(b, D) and (b,a) not in D:
+                        C.add(AlternateResponse_P(antecedent=frozenset({a}), consequent=frozenset({b})))
+                    if not is_optional_activity(c, D) and (c,a) not in D:
+                        C.add(AlternateResponse_P(antecedent=frozenset({a}), consequent=frozenset({c})))
+        
     A_E = {a for a, b in E}
     for a in A_E:
-        S = {x for source, x in E if source == a and (source, x) not in D}
+        S = {x for source, x in E if source == a and (source, x) not in TC_D}
         if S:
             C.add(AlternateResponse(antecedent=frozenset({a}), consequent=frozenset(S)))
 
@@ -215,7 +223,10 @@ def relax_exclusive_to_direct(df: pd.DataFrame, source: str, target: str) -> pd.
     Turns a non-existent relation ('-') into a direct one ('→' and '←').
     """
     df_relaxed = df.copy()
-    if df_relaxed.loc[source, target] == '-':
+    if source == target and df_relaxed.loc[source, target] == '-':
+        df_relaxed.loc[source, target] = '||'
+        df_relaxed.loc[target, source] = '||'
+    elif df_relaxed.loc[source, target] == '-':
         df_relaxed.loc[source, target] = '→'
         df_relaxed.loc[target, source] = '←'
     return df_relaxed
@@ -223,11 +234,15 @@ def relax_exclusive_to_direct(df: pd.DataFrame, source: str, target: str) -> pd.
 def relax_direct_to_indirect(df: pd.DataFrame, source: str, target: str) -> pd.DataFrame:
     """
     Turns a direct relation ('→') into an indirect one ('≺' and '≻').
+    Turns a parallel relation ('||') into two-ways indirect relation ('≺≻').
     """
     df_relaxed = df.copy()
     if df_relaxed.loc[source, target] == '→':
         df_relaxed.loc[source, target] = '≺'
         df_relaxed.loc[target, source] = '≻'
+    elif df_relaxed.loc[source, target]=='||':
+        df_relaxed.loc[source, target] = '≺≻'
+        df_relaxed.loc[target, source] = '≺≻'
     return df_relaxed
 
 
@@ -268,50 +283,123 @@ def build_mirrored_matrix(activities, start_activities, primary_relations):
             
     return df
 
+def perform_relaxation_operations(df):
+    """Applies a series of relaxation operations to the matrix."""
+    df_relaxed = df.copy()
+    # Open and read the JSON file
+    with open("relaxation-operations.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+    print("Relaxation operations to be applied, if you want to skip any operation, just comment it out in the json (relaxation-operations.json) file.")
+    for op in data:
+        print(f"Type: {op['type']}, A: {op['A']}, B: {op['B']}")
+    print("Applying Relaxation Operation:")
+    for op in data:
+        #print(f"Type: {op['type']}")
+        #print(f"A: {op['A']}")
+        #print(f"B: {op['B']}")
+        if op['type'] == 1:
+            df_relaxed = relax_remove_activity(df_relaxed, op['A'])
+        elif op['type'] == 2:
+            df_relaxed = relax_remove_all_relationships(df_relaxed, op['A'], op['B'])
+        elif op['type'] == 3:
+            df_relaxed = relax_exclusive_to_direct(df_relaxed, op['A'], op['B'])
+        elif op['type'] == 4:
+            df_relaxed = relax_direct_to_indirect(df_relaxed, op['A'], op['B'])
+    print("Relaxation operations applied.")
+    return df_relaxed
 
 if __name__ == "__main__":
-    activities1 = ['Start', 'CPR', 'KPR', 'CPO', 'RG', 'PQC', 'RI', 'SP', 'CO', 'RR']
-    data1 = [
-        ['-', '→', '-', '-', '-', '-', '-', '-', '-', '-'],
-        ['←', '-', '→', '-', '-', '-', '-', '-', '-', '-'],
-        ['-', '←', '-', '→', '-', '-', '-', '-', '-', '→'],
-        ['-', '-', '←', '-', '→', '-', '-', '-', '-', '-'],
-        ['-', '-', '-', '←', '-', '→', '-', '-', '-', '-'],
-        ['-', '-', '-', '-', '←', '-', '→', '-', '-', '-'],
-        ['-', '-', '-', '-', '-', '←', '-', '→', '-', '-'],
-        ['-', '-', '-', '-', '-', '-', '←', '-', '→', '-'],
-        ['-', '-', '-', '-', '-', '-', '-', '←', '-', '-'],
-        ['-', '-', '←', '-', '-', '-', '-', '-', '-', '-']
-    ]
-    df1 = pd.DataFrame(data1, index=activities1, columns=activities1)
+
+    # Ensure a file path is provided
+    if len(sys.argv) != 2:
+        print("Usage: python driver.py <txt_file_path>")
+        sys.exit(1)
+
+    txt_path = sys.argv[1]
+
+    # Check if file exists
+    if not os.path.exists(txt_path):
+        print(f"File not found: {txt_path}")
+        sys.exit(1)
+
+    # Read and parse the list from file
+    with open(txt_path, 'r', encoding='utf-8') as file:
+        try:
+            content = file.read()
+            matrix = ast.literal_eval(content)
+        except Exception as e:
+            print("Failed to parse the list from the file.")
+            print("Error:", e)
+            sys.exit(1)
+
+    df1 = pd.DataFrame(matrix[1:], columns=matrix[0])
+    # Set first column as index
+    df1 = df1.set_index('')
+    # Remove the name of the index
+    df1.index.name = None
+    # Now we have a clean DataFrame
     d1, e1_matrix = parse_relation_matrix(df1)
     e1_tc = compute_transitive_closure(d1)
     updated_df1 = update_matrix_with_tc(df1, e1_tc)
     final_e1 = e1_matrix.union(e1_tc)
-    constraints1 = generate_binary_constraints(d1, final_e1)
-    pretty_print_results("Running Example from Paper", df1, updated_df1, d1, final_e1, constraints1)
+    # Store the original DataFrame for reference
+    original_df = df1.copy()
+    title="BPIC19 Example from Paper"
+    while True:
+        print("="*80)
+        print(f"Executing for: {title}")
+        print("="*80)
+        print("1. Show original input matrix")
+        print("2. Update matrix with transitive closure")
+        print("3. Parsed Directly-Follows Set (D):")        
+        print("4. Final Combined Eventually-Follows Set (E):")
+        print("5. Perform Relaxation Operations on the matrix:")
+        print("6. Generated Binary Constraints:")
+        print("7. Determine Conformance Rate:")
+        print("0. Exit")
+        choice = input("Enter your choice (0-7): ")
 
-
-    activities = ['A', 'B', 'C', 'D']
-    start_activities = ['A']
-    primary_relations = [('A', 'B', '→'), ('B', 'C', '||'), ('C', 'D', '→')]
-    df = build_mirrored_matrix(activities, start_activities, primary_relations)
-    d, e_matrix = parse_relation_matrix(df)
-    e_tc = compute_transitive_closure(d)
-    updated_df = update_matrix_with_tc(df, e_tc)
-    final_e = e_matrix.union(e_tc)
-    constraints = generate_binary_constraints(d, final_e)
-    pretty_print_results("Simple Example with Parallelism", df, updated_df, d, final_e, constraints)
-
-    activities = ['A', 'B', 'C', 'D']
-    start_activities = ['A']
-    primary_relations = [('A', 'B', '→'), ('A', 'C', '→'), ('A', 'D', '→'), ('B', 'C', '||'), ('B', 'D', '→'), ('C', 'D', '→')]
-    df = build_mirrored_matrix(activities, start_activities, primary_relations)
-    e_tc = compute_transitive_closure(d)
-    updated_df = update_matrix_with_tc(df, e_tc)
-    final_e = e_matrix.union(e_tc)
-    constraints = generate_binary_constraints(d, final_e)
-    pretty_print_results("Example with Parallelism", df, updated_df, d, final_e, constraints)
+        if choice == "1": #Show original input matrix
+            print("\n1. Original Input Matrix:")
+            print(original_df)
+        elif choice == "2": #Update matrix with transitive closure
+            print("\n2. Matrix Updated with Transitive Closure Symbols:")
+            d1, e1_matrix = parse_relation_matrix(df1)
+            e1_tc = compute_transitive_closure(d1)
+            updated_df1 = update_matrix_with_tc(df1, e1_tc)
+            print(updated_df1)
+        elif choice == "3": #Parsed Directly-Follows Set (D):
+            print("\n3. Parsed Directly-Follows Set (D):")
+            d1, e1_matrix = parse_relation_matrix(df1)
+            print(sorted(list(d1)))
+        elif choice == "4": #Final Combined Eventually-Follows Set (E):
+            print("\n4. Final Combined Eventually-Follows Set (E):")
+            d1, e1_matrix = parse_relation_matrix(df1)
+            e1_tc = compute_transitive_closure(d1)
+            updated_df1 = update_matrix_with_tc(df1, e1_tc)
+            final_e1 = e1_matrix.union(e1_tc)
+            print(sorted(list(final_e1)))
+        elif choice == "5": #Perform Relaxation operations on the matrix.
+            updated_df1=perform_relaxation_operations(updated_df1)
+            d1, final_e1 = parse_relation_matrix(updated_df1)
+            #e2_tc = compute_transitive_closure(d2)
+            e1_tc=set()
+        elif choice == "6": #Generated Binary Constraints:
+            constraints = generate_binary_constraints(d1, final_e1,e1_tc)
+            print("\n5. Generated Binary Constraints:")
+            if not constraints: print("None")
+            else:
+                for constraint in sorted(list(constraints), key=lambda x: str(x)):
+                    print(constraint)
+        elif choice == "7": #Conformance Rate
+            constraints = generate_binary_constraints(d1, final_e1,e1_tc)
+            constraint_strs = [str(constraint) for constraint in constraints]
+            determine_conformance_rate_function(constraints)
+        elif choice == "0":
+            print("Exiting.")
+            break
+        else:
+            print("Invalid choice. Please try again.") 
 
 
 
