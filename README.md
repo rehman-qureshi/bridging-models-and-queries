@@ -9,7 +9,7 @@ This repository provides a Python command-line tool for interactively manipulati
 - Python 3.x
 - pandas
 - pm4py
-- Require [BPIC19_3way_IbeforeGR_standardPO_complete.xes](https://icpmconference.org/2019/icpm-2019/contests-challenges/bpi-challenge-2019/) file in cuurent folder
+- Require [BPIC19_3way_IbeforeGR_standardPO_complete.xes](https://icpmconference.org/2019/icpm-2019/contests-challenges/bpi-challenge-2019/) file in the current folder
 
 ### Installation
 
