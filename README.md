@@ -24,11 +24,11 @@ pip install pandas pm4py
 1. **Run the main script with a txt file:**
 
     ```bash
-    python driver.py <path_to_txt_file>
+    python refactored.py <path_to_txt_file>
     ```
     **Example:**
     ```bash
-    python .\driver.py .\BPIC19-Matrix.txt
+    python .\refactored.py .\BPIC19-Matrix.txt
     ```
 
 2. **Relaxation Operations for BPIC19 Model:**
