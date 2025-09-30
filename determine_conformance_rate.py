@@ -5,6 +5,7 @@ from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.algo.conformance.alignments.petri_net import algorithm as align_algorithm
 from pm4py.objects.conversion.bpmn import converter as bpmn_converter
 from pm4py.algo.filtering.log.attributes import attributes_filter
+import json
 #-------------------------------------------------------
 def chain_response(trace,A,B):
     isTraceAffected=False
@@ -83,20 +84,15 @@ def end_violation(trace, A):
 
     return isTraceAffected
 #-----------------------------------------------------------
-sabbrev_to_full = {
-    "CPRI": "Create Purchase Requisition Item",
-    "CPOI": "Create Purchase Order Item",
-    "ROC": "Receive Order Confirmation",
-    "CP": "Change Price",
-    "CQ": "Change Quantity",
-    "RGR": "Record Goods Receipt",
-    "RIR": "Record Invoice Receipt",
-    "VCI": "Vendor creates invoice",
-    "RPB": "Remove Payment Block",
-    "CI": "Clear Invoice"
-}
-
 def parse_constraint_strings(constraint_strs):
+    ############ Load the abbreviation to full name mapping ############
+    with open('sabbrev_to_full.json', 'r') as f:
+        sabbrev_to_full = json.load(f)
+    ##################################################################
+
+    if sabbrev_to_full is None:
+            raise ValueError("The abbreviation to full name mapping could not be loaded.")
+           
     constraints = []
     for constraint in constraint_strs:
         # If constraint is a string, parse as before
@@ -119,6 +115,7 @@ def parse_constraint_strings(constraint_strs):
         else:
             continue  # skip unknown types
 
+        
         # Map to full forms
         antecedent_full = sabbrev_to_full.get(antecedent_abbr[0], antecedent_abbr[0])
         consequent_full = [sabbrev_to_full.get(abbr, abbr) for abbr in consequent_abbr]

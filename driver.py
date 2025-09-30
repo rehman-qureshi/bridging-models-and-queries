@@ -1,8 +1,6 @@
 from collections import namedtuple
 import pandas as pd
 import sys
-import ast
-import os
 import json
 from determine_conformance_rate import determine_conformance_rate_function
 from create_alpha_relations_matrix import matrix_function
@@ -70,17 +68,17 @@ def update_matrix_with_tc(df: pd.DataFrame, E: set) -> pd.DataFrame:
 
         if is_forward and is_backward and a != b:
             # Handle bidirectional case: '≺≻'
-            if updated_df.loc[a, b] not in strong_symbols:
+            if str(updated_df.loc[a, b]).strip() not in strong_symbols:
                 updated_df.loc[a, b] = '≺≻'
-            if updated_df.loc[b, a] not in strong_symbols:
+            if str(updated_df.loc[b, a]).strip() not in strong_symbols:
                 updated_df.loc[b, a] = '≺≻'
             processed_pairs.add((a, b))
             processed_pairs.add((b, a))
         elif is_forward and a != b:
             # Handle one-way case: '≺' and '≻'
-            if updated_df.loc[a, b] not in strong_symbols:
+            if str(updated_df.loc[a, b]).strip() not in strong_symbols:
                 updated_df.loc[a, b] = '≺'
-            if updated_df.loc[b, a] not in strong_symbols:
+            if str(updated_df.loc[b, a]).strip() not in strong_symbols:
                 updated_df.loc[b, a] = '≻'
             processed_pairs.add((a, b))
 
@@ -197,7 +195,6 @@ def generate_binary_constraints(D, E, TC_D):
 
 
 # --- Relaxation Logic ---
-
 def relax_remove_activity(df: pd.DataFrame, activity: str) -> pd.DataFrame:
     """
     Makes an activity optional and allows it to appear anywhere by setting
@@ -225,10 +222,10 @@ def relax_exclusive_to_direct(df: pd.DataFrame, source: str, target: str) -> pd.
     Turns a non-existent relation ('-') into a direct one ('→' and '←').
     """
     df_relaxed = df.copy()
-    if source == target and df_relaxed.loc[source, target] == '-':
-        df_relaxed.loc[source, target] = '||'
-        df_relaxed.loc[target, source] = '||'
-    elif df_relaxed.loc[source, target] == '-':
+    if source == target and str(df_relaxed.loc[source, target]).strip() =='-':
+        df_relaxed.loc[source, target] ='||'
+        df_relaxed.loc[target, source] ='||'
+    elif str(df_relaxed.loc[source, target]).strip() =='-':
         df_relaxed.loc[source, target] = '→'
         df_relaxed.loc[target, source] = '←'
     return df_relaxed
@@ -239,52 +236,15 @@ def relax_direct_to_indirect(df: pd.DataFrame, source: str, target: str) -> pd.D
     Turns a parallel relation ('||') into two-ways indirect relation ('≺≻').
     """
     df_relaxed = df.copy()
-    if df_relaxed.loc[source, target] == '→':
+    if str(df_relaxed.loc[source, target]).strip() == '→':
         df_relaxed.loc[source, target] = '≺'
         df_relaxed.loc[target, source] = '≻'
-    elif df_relaxed.loc[source, target]=='||':
+    elif str(df_relaxed.loc[source, target]).strip()=='||':
         df_relaxed.loc[source, target] = '≺≻'
         df_relaxed.loc[target, source] = '≺≻'
     return df_relaxed
 
-
-# --- Display Logic ---
-def pretty_print_results(title, original_df, updated_df, D, final_E, constraints):
-    """Helper function to display all results."""
-    print("="*80)
-    print(f"Executing for: {title}")
-    print("="*80)
-    print("\n1. Original Input Matrix:")
-    print(original_df)
-    print("\n2. Matrix Updated with Transitive Closure Symbols:")
-    print(updated_df)
-    print("\n3. Parsed Directly-Follows Set (D):")
-    print(sorted(list(D)))
-    print("\n4. Final Combined Eventually-Follows Set (E):")
-    print(sorted(list(final_E)))
-    print("\n5. Generated Binary Constraints:")
-    if not constraints: print("None")
-    else:
-        for constraint in sorted(list(constraints), key=lambda x: str(x)):
-            print(constraint)
-    print("\n\n")
-
-def build_mirrored_matrix(activities, start_activities, primary_relations):
-    """Builds a relationally complete matrix with an artificial 'Start' node."""
-    full_activities = ['Start'] + activities
-    df = pd.DataFrame('-', index=full_activities, columns=full_activities)
-    
-    for act in start_activities:
-        primary_relations.append(('Start', act, '→'))
-        
-    inverse_map = {'→': '←', '←': '→', '≺': '≻', '≻': '≺', '||': '||'}
-    for row_act, col_act, symbol in primary_relations:
-        if row_act in full_activities and col_act in full_activities:
-            df.loc[row_act, col_act] = symbol
-            df.loc[col_act, row_act] = inverse_map.get(symbol, '-')
-            
-    return df
-
+#--- Main Relaxation Function ---
 def perform_relaxation_operations(df):
     """Applies a series of relaxation operations to the matrix."""
     df_relaxed = df.copy()
@@ -356,8 +316,8 @@ def resolve_silent_successors(df, silent_transitions_names):
                                     #print(f"Updated-Inverse: {succ} to {act} with {inverse_symbol(curr_symbol)} via {tau}")
     return df_resolved
 
+# Main Execution Block
 if __name__ == "__main__":
-
     
     if len(sys.argv) != 3:
         print("Usage: python refactored.py <pnml_file_path> <skip silent transitions?TRUE:FALSE>")
@@ -393,19 +353,10 @@ if __name__ == "__main__":
         else:
             print("Silent transitions are retained in the matrix as per user choice.")
             print(df1)
-        # Remove leading/trailing whitespace
-        #df1 = df1.applymap(lambda x: x.strip() if isinstance(x, str) else x)
-        #print(df1)
-        #df1 = pd.DataFrame(df, columns=transition_names)
-        # Set first column as index
-        #df1 = df1.set_index('')
-        # Remove the name of the index
-        #df1.index.name = None
-        # Now we have a clean DataFrame
+
+        # Initial parsing and transitive closure computation
         d1, e1_matrix = parse_relation_matrix(df1)
-        #print("Directly-Follows Set (D):",sorted(list(d1)))
         e1_tc = compute_transitive_closure(d1)
-        #print("Transitive Closure Set (TC_D):",sorted(list(e1_tc)))
         updated_df1 = update_matrix_with_tc(df1, e1_tc)
         final_e1 = e1_matrix.union(e1_tc)
         # Store the original DataFrame for reference
@@ -450,6 +401,8 @@ if __name__ == "__main__":
                 d1, final_e1 = parse_relation_matrix(updated_df1)
                 #e2_tc = compute_transitive_closure(d2)
                 e1_tc=set()
+                print("\n5. Relaxed Matrix after applying relaxation operations:")
+                print(updated_df1)
             elif choice == "6": #Generated Binary Constraints:
                 constraints = generate_binary_constraints(d1, final_e1,e1_tc)
                 print("\n5. Generated Binary Constraints:")
@@ -470,7 +423,6 @@ if __name__ == "__main__":
         print("Failed to create the alpha relations matrix.")
 
      
-
 
 
 

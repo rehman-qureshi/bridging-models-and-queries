@@ -11,19 +11,7 @@ from pm4py.objects.petri_net.obj import PetriNet as PM4PyPetriNet
 import pandas as pd
 from pm4py.objects.petri_net.utils.check_soundness import (check_wfnet, check_easy_soundness_of_wfnet)
 #from pm4py.objects.petri.check_soundness import (check_wfnet,check_easy_soundness_of_wfnet)
-
-sabbrev_to_full = {
-    "CPRI": "Create Purchase Requisition Item",
-    "CPOI": "Create Purchase Order Item",
-    "ROC": "Receive Order Confirmation",
-    "CP": "Change Price",
-    "CQ": "Change Quantity",
-    "RGR": "Record Goods Receipt",
-    "RIR": "Record Invoice Receipt",
-    "VCI": "Vendor creates invoice",
-    "RPB": "Remove Payment Block",
-    "CI": "Clear Invoice"
-}
+import json
 
 class RelSetType(Enum):
     Order = '→'
@@ -485,6 +473,13 @@ def check_soundness_with_pm4py(net, im, fm):
 
 def matrix_function(pnml_path):
     
+    # Load the mapping from full names to abbreviations
+    with open('sabbrev_to_full.json', 'r', encoding='utf-8') as f:
+        sabbrev_to_full = json.load(f)
+    
+    if sabbrev_to_full is None:
+        print("Error: Could not load sabbrev_to_full.json")
+        return None,None
     # Import the PNML file
     net_pm4py, initial_marking, final_marking = pnml_importer.apply(pnml_path)
     net = convert_pm4py_to_custom(net_pm4py, initial_marking) 
@@ -494,26 +489,19 @@ def matrix_function(pnml_path):
     if not res["is_wfnet"]:
         print("The net system is not a valid workflow net.")
         return None,None
-    
     elif res["is_wfnet"] and not res["easy_sound"]:
         print("The net system is a valid workflow net, but not easily sound.")
         return None,None
-    
     else:
         print("The net system is a valid and easily sound workflow net.")
     
 
     # Find all silent (invisible) transitions in the Petri net
     silent_transitions_names = [t.name for t in net_pm4py.transitions if not t.label]
-
-    #print("Silent Transitions:", silent_transitions_names)
-    #for t in silent_transitions_names:
-        #print("-", t.name)  # .name is the unique ID of the transition
     
     rs_creator = RelSetCreatorUnfolding.get_instance()
     transitions = [n for n in net.get_nodes() if isinstance(n, Transition)]
     rel_set = rs_creator.derive_relation_set(net, transitions, 1)
-    #print("Create Alpha-Relations Matrix")
      
     # Get the matrix
     matrix = rel_set.get_matrix()
@@ -537,6 +525,5 @@ def matrix_function(pnml_path):
                     break
 
     matrix_df = pd.DataFrame(matrix, index=transition_names, columns=transition_names)
-    #print(matrix_df)
     return matrix_df,unique_labels_for_silent_transitions
     

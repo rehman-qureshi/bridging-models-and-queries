@@ -1,0 +1,12 @@
+{
+    "CPRI": "Create Purchase Requisition Item",
+    "CPOI": "Create Purchase Order Item",
+    "ROC": "Receive Order Confirmation",
+    "CP": "Change Price",
+    "CQ": "Change Quantity",
+    "RGR": "Record Goods Receipt",
+    "RIR": "Record Invoice Receipt",
+    "VCI": "Vendor creates invoice",
+    "RPB": "Remove Payment Block",
+    "CI": "Clear Invoice"
+}
