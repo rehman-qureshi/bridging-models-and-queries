@@ -469,7 +469,7 @@ def check_soundness_with_pm4py(net, im, fm):
             easy_sound = check_easy_soundness_of_wfnet(net)
             return {"is_wfnet": is_wfnet, "easy_sound": easy_sound}
         except Exception as e:
-            raise RuntimeError("Could not find PM4Py soundness API in this installation: " + str(e))
+            raise RuntimeError("The input PNML file is not a valid workflow net or does not hold a sound property." + str(e))
 
 def matrix_function(pnml_path):
     
