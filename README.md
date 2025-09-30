@@ -32,7 +32,7 @@ pip install pandas pm4py
     ```
     - The last argument (TRUE or FALSE) specifies whether to skip silent transitions during matrix processing.
 2. **Matrix Manipulation:**
-    - Use create_alpha_relations_matrix.py to generate and process the activity relations matrix..
+    - Use create_alpha_relations_matrix.py to generate and process the activity relations matrix.
     - Silent transitions are handled and resolved to propagate relations to actual activities before removal.
 
 3. **Relaxation Operations for BPIC19 Model:**
