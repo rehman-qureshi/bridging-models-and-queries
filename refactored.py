@@ -384,6 +384,8 @@ if __name__ == "__main__":
             d1, final_e1 = parse_relation_matrix(updated_df1)
             #e2_tc = compute_transitive_closure(d2)
             e1_tc=set()
+            print("\nRelaxed Matrix:")
+            print(updated_df1)
         elif choice == "6": #Generated Binary Constraints:
             constraints = generate_binary_constraints(d1, final_e1,e1_tc)
             print("\n5. Generated Binary Constraints:")
