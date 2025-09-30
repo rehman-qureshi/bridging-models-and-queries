@@ -1,229 +1,238 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
-  <net id="ptNet_1" type="http://www.pnml.org/version-2009/grammar/ptnet">
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
     <name>
-      <text>ptNet_1</text>
+      <text></text>
     </name>
-    <page id="ptnet_page_1">
-      <place id="place_1">
-        <graphics>
-          <position x="-515" y="-5"/>
-        </graphics>
+    <page id="n0">
+      <place id="ent_Activity_1f4vu2i">
+        <name>
+          <text>ent_Activity_1f4vu2i</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
         <initialMarking>
           <text>1</text>
-          <graphics>
-            <offset x="22" y="20"/>
-          </graphics>
         </initialMarking>
       </place>
-      <place id="Place_85f1gorfjau3li0sbl5645czk">
-        <graphics>
-          <position x="-425" y="-115"/>
-        </graphics>
-      </place>
-      <place id="Place_4svqmza1ppz1nd7uz78ll15j6">
-        <graphics>
-          <position x="-335" y="-5"/>
-        </graphics>
-      </place>
-      <place id="Place_0660zf7jlvw8ctasr0a1m3u7q">
-        <graphics>
-          <position x="-165" y="-75"/>
-        </graphics>
-      </place>
-      <place id="Place_e6zmfqk1jf3ymp47heo5oxeno">
-        <graphics>
-          <position x="-175" y="75"/>
-        </graphics>
-      </place>
-      <place id="Place_ay3huk5jnkkrghdpxpdc3pomx">
-        <graphics>
-          <position x="-25" y="-55"/>
-        </graphics>
-      </place>
-      <place id="Place_2f073zk0jtf7q7bmufgjuees5">
-        <graphics>
-          <position x="-35" y="55"/>
-        </graphics>
-      </place>
-      <place id="Place_6m120u2r2mcxjon2ihth2fl8b">
-        <graphics>
-          <position x="135" y="-115"/>
-        </graphics>
-      </place>
-      <place id="Place_994g1qe1g3nc8b8ic2grv3gep">
-        <graphics>
-          <position x="295" y="-95"/>
-        </graphics>
-      </place>
-      <place id="Place_cvef4llspztbruf5kyy9f7dpd">
-        <graphics>
-          <position x="295" y="-5"/>
-        </graphics>
-      </place>
-      <place id="Place_0cw1xy49s00b7peds8zhsg8gm">
-        <graphics>
-          <position x="525" y="55"/>
-        </graphics>
-      </place>
-      <place id="Place_4xqfw8wjcva92em5nqcswipoh">
-        <graphics>
-          <position x="725" y="5"/>
-        </graphics>
-      </place>
-      <place id="Place_3dywskoubg8cn9ha4x1fcl0vm">
-        <graphics>
-          <position x="625" y="175"/>
-        </graphics>
-      </place>
-      <place id="Place_b6m4ot2rbi3bf7zrb37d7qkyq">
-        <graphics>
-          <position x="455" y="-95"/>
-        </graphics>
-      </place>
-      <place id="Place_ca34xxqmdckqjrovsoifvfsdj">
-        <graphics>
-          <position x="455" y="-5"/>
-        </graphics>
-      </place>
-      <transition id="Transition_bj0lq99llpw08f5zwf5589el9">
+      <place id="Flow_1wq9nii">
         <name>
-          <text>CPRI</text>
+          <text>Flow_1wq9nii</text>
         </name>
-        <graphics>
-          <position x="-515" y="-115"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_a2ok125vb03nqmo7zzh2yxggl">
+      </place>
+      <place id="Flow_00cqzzb">
         <name>
-          <text>CPOI</text>
+          <text>Flow_00cqzzb</text>
         </name>
-        <graphics>
-          <position x="-425" y="-5"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_0mmplx1lrrn7dzpu2tjkgw6py">
+      </place>
+      <place id="ent_Gateway_18i9ydh">
         <name>
-          <text>ROC</text>
+          <text>ent_Gateway_18i9ydh</text>
         </name>
-        <graphics>
-          <position x="-255" y="-75"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_ap5vcgyp0s2p3pc4x07xwgn79">
+      </place>
+      <place id="ent_Activity_0lm8dfa">
         <name>
-          <text>CP</text>
+          <text>ent_Activity_0lm8dfa</text>
         </name>
-        <graphics>
-          <position x="-255" y="75"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_djt5wr6629t9q8t6uool75ejj">
+      </place>
+      <place id="exi_Gateway_13k55lc">
         <name>
-          <text>tau</text>
+          <text>exi_Gateway_13k55lc</text>
         </name>
-        <graphics>
-          <position x="-95" y="5"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_1gt6umsju5nvwihsr2yrnafan">
+      </place>
+      <place id="exi_Gateway_178b7ol">
         <name>
-          <text>VCI</text>
+          <text>exi_Gateway_178b7ol</text>
         </name>
-        <graphics>
-          <position x="55" y="55"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_admlyr92l04swikuf8sfi2sv4">
+      </place>
+      <place id="Flow_1jsowly">
         <name>
-          <text>CQ</text>
+          <text>Flow_1jsowly</text>
         </name>
-        <graphics>
-          <position x="55" y="-115"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_dzbcsgvwnpj8xar4opmx4yjeq">
+      </place>
+      <place id="ent_Gateway_1q2q5lx">
         <name>
-          <text>tau</text>
+          <text>ent_Gateway_1q2q5lx</text>
         </name>
-        <graphics>
-          <position x="215" y="-55"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_9624u806lx8zuz0u46dtpp14s">
+      </place>
+      <place id="ent_Gateway_19n1d57">
         <name>
-          <text>RGR</text>
+          <text>ent_Gateway_19n1d57</text>
         </name>
-        <graphics>
-          <position x="375" y="-95"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_9l4tnyop5juigyz5ezz9rvaqz">
+      </place>
+      <place id="ent_Event_1u3m1os">
         <name>
-          <text>RIR</text>
+          <text>ent_Event_1u3m1os</text>
         </name>
-        <graphics>
-          <position x="375" y="-5"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_e7j7m45568vgrqjclaxtu7aac">
+      </place>
+      <place id="ent_Gateway_0av57uo">
         <name>
-          <text>RBP</text>
+          <text>ent_Gateway_0av57uo</text>
         </name>
-        <graphics>
-          <position x="625" y="5"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_9w1rj5ntvrhqg5pzii0im9065">
+      </place>
+      <place id="exi_Gateway_0dnhqa1">
         <name>
-          <text>CI</text>
+          <text>exi_Gateway_0dnhqa1</text>
         </name>
-        <graphics>
-          <position x="625" y="95"/>
-        </graphics>
-      </transition>
-      <transition id="Transition_casnt87j83zb6a46aekxtcxvd">
+      </place>
+      <place id="sink">
         <name>
-          <text>tau</text>
+          <text>sink</text>
         </name>
-        <graphics>
-          <position x="525" y="-55"/>
-        </graphics>
+      </place>
+      <place id="exi_Gateway_1qc8q7e">
+        <name>
+          <text>exi_Gateway_1qc8q7e</text>
+        </name>
+      </place>
+      <transition id="Event_1u3m1os">
+        <name>
+          <text>Vendor creates invoice</text>
+        </name>
       </transition>
-      <arc id="Arc_eb3ra3v6qvfg3iz8n9zvxcabv" source="place_1" target="Transition_bj0lq99llpw08f5zwf5589el9"/>
-      <arc id="Arc_74u9fs2wh9447wc5402710r75" source="place_1" target="Transition_a2ok125vb03nqmo7zzh2yxggl"/>
-      <arc id="Arc_ac29qmnurrdfkse6fkjitzip3" source="Transition_bj0lq99llpw08f5zwf5589el9" target="Place_85f1gorfjau3li0sbl5645czk"/>
-      <arc id="Arc_bv7ypgqpptfwby8wngdxxyr8z" source="Place_85f1gorfjau3li0sbl5645czk" target="Transition_a2ok125vb03nqmo7zzh2yxggl"/>
-      <arc id="Arc_3fgnudxqys1fwao5okxqxz1ht" source="Transition_a2ok125vb03nqmo7zzh2yxggl" target="Place_4svqmza1ppz1nd7uz78ll15j6"/>
-      <arc id="Arc_4o52g15mc8c6kqn1r2202dg64" source="Place_4svqmza1ppz1nd7uz78ll15j6" target="Transition_0mmplx1lrrn7dzpu2tjkgw6py"/>
-      <arc id="Arc_egjzjf8k77traws47zipzet8v" source="Place_4svqmza1ppz1nd7uz78ll15j6" target="Transition_ap5vcgyp0s2p3pc4x07xwgn79"/>
-      <arc id="Arc_3iwt2e0nyi4p1t9rw773dsmgo" source="Transition_0mmplx1lrrn7dzpu2tjkgw6py" target="Place_0660zf7jlvw8ctasr0a1m3u7q"/>
-      <arc id="Arc_9xkngrn5c5a474adq4ufeorhj" source="Transition_ap5vcgyp0s2p3pc4x07xwgn79" target="Place_e6zmfqk1jf3ymp47heo5oxeno"/>
-      <arc id="Arc_9bv93cp9sffe25ilkrw0p9t64" source="Place_e6zmfqk1jf3ymp47heo5oxeno" target="Transition_djt5wr6629t9q8t6uool75ejj"/>
-      <arc id="Arc_6bcs1cujezh5pbxjg9rky1ep6" source="Place_4svqmza1ppz1nd7uz78ll15j6" target="Transition_djt5wr6629t9q8t6uool75ejj"/>
-      <arc id="Arc_12ym094d4pahao024h27ggbsh" source="Place_0660zf7jlvw8ctasr0a1m3u7q" target="Transition_djt5wr6629t9q8t6uool75ejj"/>
-      <arc id="Arc_8softxfvxsuynds2zj4p1r5ij" source="Transition_djt5wr6629t9q8t6uool75ejj" target="Place_ay3huk5jnkkrghdpxpdc3pomx"/>
-      <arc id="Arc_2d0kcgpm5n7ea1g66ol2oy5tm" source="Transition_djt5wr6629t9q8t6uool75ejj" target="Place_2f073zk0jtf7q7bmufgjuees5"/>
-      <arc id="Arc_0cjyx24374ovmrpg4iin92bdc" source="Place_2f073zk0jtf7q7bmufgjuees5" target="Transition_1gt6umsju5nvwihsr2yrnafan"/>
-      <arc id="Arc_7p2cre1h00cm202gebocnh0er" source="Place_ay3huk5jnkkrghdpxpdc3pomx" target="Transition_admlyr92l04swikuf8sfi2sv4"/>
-      <arc id="Arc_52j7ciks27nfj3a44ovnazv1m" source="Transition_admlyr92l04swikuf8sfi2sv4" target="Place_6m120u2r2mcxjon2ihth2fl8b"/>
-      <arc id="Arc_ecd502cljjekm4r6zeai5ov91" source="Place_6m120u2r2mcxjon2ihth2fl8b" target="Transition_dzbcsgvwnpj8xar4opmx4yjeq"/>
-      <arc id="Arc_8xlf9tifkxfwh6xmdvi6f03zd" source="Place_ay3huk5jnkkrghdpxpdc3pomx" target="Transition_dzbcsgvwnpj8xar4opmx4yjeq"/>
-      <arc id="Arc_3o2hotimxet1iwwinp88ccfpn" source="Transition_dzbcsgvwnpj8xar4opmx4yjeq" target="Place_994g1qe1g3nc8b8ic2grv3gep"/>
-      <arc id="Arc_bj7jvqg1qydidtx0z94bbbvv0" source="Transition_dzbcsgvwnpj8xar4opmx4yjeq" target="Place_cvef4llspztbruf5kyy9f7dpd"/>
-      <arc id="Arc_50s5oyjly0slp111994rx1z4v" source="Place_994g1qe1g3nc8b8ic2grv3gep" target="Transition_9624u806lx8zuz0u46dtpp14s"/>
-      <arc id="Arc_1ex3kviypq8enqk7jwp85paxx" source="Place_cvef4llspztbruf5kyy9f7dpd" target="Transition_9l4tnyop5juigyz5ezz9rvaqz"/>
-      <arc id="Arc_3nkte3xoq9xj42uyh249ce8gs" source="Transition_1gt6umsju5nvwihsr2yrnafan" target="Place_0cw1xy49s00b7peds8zhsg8gm"/>
-      <arc id="Arc_3y5otnfbl32fvhbolcoruu4zs" source="Place_0cw1xy49s00b7peds8zhsg8gm" target="Transition_e7j7m45568vgrqjclaxtu7aac"/>
-      <arc id="Arc_05qqa8thodelkojtan6m7ovnp" source="Place_0cw1xy49s00b7peds8zhsg8gm" target="Transition_9w1rj5ntvrhqg5pzii0im9065"/>
-      <arc id="Arc_9vpj8iro2uwbedvlp87xbzagm" source="Transition_e7j7m45568vgrqjclaxtu7aac" target="Place_4xqfw8wjcva92em5nqcswipoh"/>
-      <arc id="Arc_2yu4k0h7qqrwfisvjuysdfnwn" source="Place_4xqfw8wjcva92em5nqcswipoh" target="Transition_9w1rj5ntvrhqg5pzii0im9065"/>
-      <arc id="Arc_2hkm5xronlho615yzwzdlm1jx" source="Transition_9w1rj5ntvrhqg5pzii0im9065" target="Place_3dywskoubg8cn9ha4x1fcl0vm"/>
-      <arc id="Arc_6wigmvwmeto0th42oid0k8rvw" source="Transition_9624u806lx8zuz0u46dtpp14s" target="Place_b6m4ot2rbi3bf7zrb37d7qkyq"/>
-      <arc id="Arc_4bre53dkmkizxhpgzpdpmoxxk" source="Transition_9l4tnyop5juigyz5ezz9rvaqz" target="Place_ca34xxqmdckqjrovsoifvfsdj"/>
-      <arc id="Arc_9ry1qct92iajkbitcgg1s1ab8" source="Place_b6m4ot2rbi3bf7zrb37d7qkyq" target="Transition_casnt87j83zb6a46aekxtcxvd"/>
-      <arc id="Arc_1lgj7pztv6zbudvz3sucxsq24" source="Place_ca34xxqmdckqjrovsoifvfsdj" target="Transition_casnt87j83zb6a46aekxtcxvd"/>
-      <arc id="Arc_bny0u1f2jno5u5wf2xkc5zfg2" source="Transition_casnt87j83zb6a46aekxtcxvd" target="Place_0cw1xy49s00b7peds8zhsg8gm"/>
+      <transition id="Gateway_0av57uo">
+        <name>
+          <text>Gateway_0av57uo</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="945d3d5b-5d75-4b0e-b537-5e9a91988c01"/>
+      </transition>
+      <transition id="99d76228-c504-47b1-b548-6ab439449256">
+        <name>
+          <text>99d76228-c504-47b1-b548-6ab439449256</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="1e7698e7-9188-4d7b-98ae-71e0c5ab0532"/>
+      </transition>
+      <transition id="Activity_1przmvu">
+        <name>
+          <text>Create Purchase Requisition Item</text>
+        </name>
+      </transition>
+      <transition id="Activity_0myznkk">
+        <name>
+          <text>Create Purchase Order Item</text>
+        </name>
+      </transition>
+      <transition id="Activity_1naiosi">
+        <name>
+          <text>Clear Invoice</text>
+        </name>
+      </transition>
+      <transition id="Activity_1f4vu2i">
+        <name>
+          <text>Record Invoice Receipt</text>
+        </name>
+      </transition>
+      <transition id="sfl_Flow_0lxx475">
+        <name>
+          <text>sfl_Flow_0lxx475</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="91d49c09-eca3-4503-ab0d-247822f8bc1b"/>
+      </transition>
+      <transition id="Activity_008kd6p">
+        <name>
+          <text>Change Quantity</text>
+        </name>
+      </transition>
+      <transition id="sfl_Flow_1492jeo">
+        <name>
+          <text>sfl_Flow_1492jeo</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="58c78104-4469-49cf-8325-01a81c7e729b"/>
+      </transition>
+      <transition id="Activity_17wzmtn">
+        <name>
+          <text>Receive Order Confirmation</text>
+        </name>
+      </transition>
+      <transition id="Activity_1diekc9">
+        <name>
+          <text>Remove Payment Block</text>
+        </name>
+      </transition>
+      <transition id="Activity_0s0quzy">
+        <name>
+          <text>Change Price</text>
+        </name>
+      </transition>
+      <transition id="09c250d0-a2e6-4642-9e14-2fd5bcd42d6d">
+        <name>
+          <text>09c250d0-a2e6-4642-9e14-2fd5bcd42d6d</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="6fde05f7-5089-471a-b296-01ede46589e1"/>
+      </transition>
+      <transition id="sfl_Flow_1yehqei">
+        <name>
+          <text>sfl_Flow_1yehqei</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="cf292bf4-0531-4e5f-8ed0-0542a39ac02c"/>
+      </transition>
+      <transition id="Gateway_18i9ydh">
+        <name>
+          <text>Gateway_18i9ydh</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="70bdd44b-09c6-4c68-96c2-ec850b01a20f"/>
+      </transition>
+      <transition id="Activity_0lm8dfa">
+        <name>
+          <text>Record Goods Receipt</text>
+        </name>
+      </transition>
+      <transition id="sfl_Flow_1c0kb8e">
+        <name>
+          <text>sfl_Flow_1c0kb8e</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="69154bb9-ba86-45a9-a6ff-215dea522713"/>
+      </transition>
+      <arc id="2024994183680" source="Event_1u3m1os" target="Flow_1jsowly"/>
+      <arc id="2024994186752" source="exi_Gateway_178b7ol" target="Activity_0s0quzy"/>
+      <arc id="2024994141728" source="exi_Gateway_178b7ol" target="sfl_Flow_1c0kb8e"/>
+      <arc id="2024994183200" source="Activity_17wzmtn" target="ent_Gateway_0av57uo"/>
+      <arc id="2024994186272" source="Activity_008kd6p" target="ent_Gateway_18i9ydh"/>
+      <arc id="2024994134576" source="source" target="99d76228-c504-47b1-b548-6ab439449256"/>
+      <arc id="2024994130496" source="ent_Event_1u3m1os" target="Event_1u3m1os"/>
+      <arc id="2024994187328" source="Flow_00cqzzb" target="09c250d0-a2e6-4642-9e14-2fd5bcd42d6d"/>
+      <arc id="2024994129488" source="ent_Gateway_0av57uo" target="Gateway_0av57uo"/>
+      <arc id="2024994186848" source="exi_Gateway_13k55lc" target="Activity_008kd6p"/>
+      <arc id="2024994185312" source="Gateway_18i9ydh" target="ent_Activity_1f4vu2i"/>
+      <arc id="2024994182240" source="Activity_1f4vu2i" target="Flow_1wq9nii"/>
+      <arc id="2024994181760" source="sfl_Flow_1yehqei" target="ent_Gateway_18i9ydh"/>
+      <arc id="2024994184832" source="Activity_0myznkk" target="exi_Gateway_178b7ol"/>
+      <arc id="2024994187424" source="Flow_1wq9nii" target="09c250d0-a2e6-4642-9e14-2fd5bcd42d6d"/>
+      <arc id="2024994181280" source="Activity_0lm8dfa" target="Flow_00cqzzb"/>
+      <arc id="2024994185408" source="Gateway_18i9ydh" target="ent_Activity_0lm8dfa"/>
+      <arc id="2024994186944" source="ent_Gateway_1q2q5lx" target="Activity_0myznkk"/>
+      <arc id="2024994182336" source="Activity_0s0quzy" target="ent_Gateway_0av57uo"/>
+      <arc id="2024994186464" source="09c250d0-a2e6-4642-9e14-2fd5bcd42d6d" target="exi_Gateway_1qc8q7e"/>
+      <arc id="2024994128624" source="ent_Activity_1f4vu2i" target="Activity_1f4vu2i"/>
+      <arc id="2024994187520" source="ent_Gateway_19n1d57" target="Activity_1naiosi"/>
+      <arc id="2024994187040" source="exi_Gateway_178b7ol" target="Activity_17wzmtn"/>
+      <arc id="2024994185504" source="sfl_Flow_0lxx475" target="ent_Gateway_19n1d57"/>
+      <arc id="2024994186560" source="Gateway_0av57uo" target="ent_Event_1u3m1os"/>
+      <arc id="2024994181952" source="sfl_Flow_1c0kb8e" target="ent_Gateway_0av57uo"/>
+      <arc id="2024994180416" source="exi_Gateway_1qc8q7e" target="sfl_Flow_0lxx475"/>
+      <arc id="2024994139472" source="exi_Gateway_0dnhqa1" target="sfl_Flow_1492jeo"/>
+      <arc id="2024994186080" source="Gateway_0av57uo" target="exi_Gateway_13k55lc"/>
+      <arc id="2024994184544" source="Activity_1naiosi" target="sink"/>
+      <arc id="2024994185600" source="sfl_Flow_1492jeo" target="ent_Gateway_1q2q5lx"/>
+      <arc id="2024994184064" source="Activity_1przmvu" target="ent_Gateway_1q2q5lx"/>
+      <arc id="2024994187136" source="exi_Gateway_0dnhqa1" target="Activity_1przmvu"/>
+      <arc id="2024994186656" source="Activity_1diekc9" target="ent_Gateway_19n1d57"/>
+      <arc id="2024994144176" source="exi_Gateway_13k55lc" target="sfl_Flow_1yehqei"/>
+      <arc id="2024993848256" source="ent_Gateway_18i9ydh" target="Gateway_18i9ydh"/>
+      <arc id="2024994186176" source="99d76228-c504-47b1-b548-6ab439449256" target="exi_Gateway_0dnhqa1"/>
+      <arc id="2024994133472" source="ent_Activity_0lm8dfa" target="Activity_0lm8dfa"/>
+      <arc id="2024994187232" source="exi_Gateway_1qc8q7e" target="Activity_1diekc9"/>
+      <arc id="2024994140144" source="Flow_1jsowly" target="09c250d0-a2e6-4642-9e14-2fd5bcd42d6d"/>
     </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
   </net>
 </pnml>

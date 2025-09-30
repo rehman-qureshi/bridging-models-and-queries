@@ -5,7 +5,8 @@ import ast
 import os
 import json
 from determine_conformance_rate import determine_conformance_rate_function
-
+from create_alpha_relations_matrix import matrix_function
+from visualize_pnml_model import visualize_function
 
 # Define the structure for the declarative constraints for clarity
 ChainResponse = namedtuple('ChainResponse', ['antecedent', 'consequent'])
@@ -19,22 +20,23 @@ def parse_relation_matrix(df):
     """
     D = set()
     E = set()
-    
     for row_label, row in df.iterrows():
         for col_label, symbol in row.items():
-            if symbol == '→':
+            
+            if str(symbol).strip() == '→':
+            #if symbol == '→':    
                 D.add((row_label, col_label))
-            elif symbol == '←':
+            elif str(symbol).strip() == '←':
                 D.add((col_label, row_label))
-            elif symbol == '≺':
+            elif str(symbol).strip() == '≺':
                 E.add((row_label, col_label))
-            elif symbol == '≻':
+            elif str(symbol).strip() == '≻':
                 E.add((col_label, row_label))
-            elif symbol == '||':
+            elif str(symbol).strip() == '||':
                 # Concurrency implies a bi-directional directly-follows relationship
                 D.add((row_label, col_label))
                 D.add((col_label, row_label))
-            elif symbol == '≺≻':
+            elif str(symbol).strip() == '≺≻':
                 # if we have bi-directional eventually-follows relationship
                 E.add((row_label, col_label))
                 E.add((col_label, row_label))
@@ -294,9 +296,6 @@ def perform_relaxation_operations(df):
         print(f"Type: {op['type']}, A: {op['A']}, B: {op['B']}")
     print("Applying Relaxation Operation:")
     for op in data:
-        #print(f"Type: {op['type']}")
-        #print(f"A: {op['A']}")
-        #print(f"B: {op['B']}")
         if op['type'] == 1:
             df_relaxed = relax_remove_activity(df_relaxed, op['A'])
         elif op['type'] == 2:
@@ -308,98 +307,169 @@ def perform_relaxation_operations(df):
     print("Relaxation operations applied.")
     return df_relaxed
 
+#--- Silent Transition Handling ---
+def inverse_symbol(symbol: str) -> str:
+    if str(symbol).strip() == "→":
+        return "←"
+    if str(symbol).strip() == "←":
+        return "→"
+    return str(symbol).strip()   # for '||' or '-'
+
+# Resolve silent transitions (tau)
+def resolve_silent_successors(df, silent_transitions_names):
+    """
+    Collapse silent transitions (tau) by redirecting relations
+    from activities through tau to their reachable non-silent successors.
+    """
+    df_resolved = df.copy()
+    activities = [name for name in df.index if name not in silent_transitions_names]
+    for act in activities:
+        for tau in silent_transitions_names:
+            symbol = df_resolved.loc[act, tau]
+            #if symbol not in ['-', '', None]:
+            if str(symbol).strip() in ['→','||']:
+                # Perform DFS to find all reachable successors from tau
+                visited = set()
+                stack = [(tau, symbol)]
+                while stack:
+                    current, curr_symbol = stack.pop()
+                    if current in visited:
+                        continue
+                    visited.add(current)
+
+                    for succ in df.columns:
+                        next_symbol = df_resolved.loc[current, succ]
+                        #if next_symbol not in ['-', '', None]:
+                        if str(next_symbol).strip() in ['→','||']:
+                            # If next is silent → continue recursion
+                            if succ in silent_transitions_names:
+                                stack.append((succ, curr_symbol))
+                            else:
+                                # Only update if no strong relation exists yet
+                                if str(df_resolved.loc[act, succ]).strip() in ['-', '', None] and act != succ:
+                                #if str(df_resolved.loc[act, succ]).strip()=='-':
+                                    df_resolved.loc[act, succ] = curr_symbol
+                                    #print(f"Updated: {act} to {succ} with {curr_symbol} via {tau}")
+                                # Also update the inverse relation if not set
+                                if str(df_resolved.loc[succ, act]).strip() in ['-', '', None] and act != succ:
+                                    df_resolved.loc[succ, act] = inverse_symbol(curr_symbol)
+                                    #print(f"Updated-Inverse: {succ} to {act} with {inverse_symbol(curr_symbol)} via {tau}")
+    return df_resolved
+
 if __name__ == "__main__":
 
-    # Ensure a file path is provided
-    if len(sys.argv) != 2:
-        print("Usage: python driver.py <txt_file_path>")
+    
+    if len(sys.argv) != 3:
+        print("Usage: python refactored.py <pnml_file_path> <skip silent transitions?TRUE:FALSE>")
         sys.exit(1)
 
-    txt_path = sys.argv[1]
+    pnml_path = sys.argv[1]
+    skip_silent_transitions=sys.argv[2]
 
-    # Check if file exists
-    if not os.path.exists(txt_path):
-        print(f"File not found: {txt_path}")
+    # Validate the skip_silent_transitions argument
+    if skip_silent_transitions.upper() not in ['TRUE', 'FALSE']:
+        print("Invalid value for skip silent transitions. Use TRUE or FALSE.")
         sys.exit(1)
+    
+    # Convert to boolean 
+    skip_flag=skip_silent_transitions.upper()
+   
+    # Call the visualization function
+    output_file=visualize_function(pnml_path)
 
-    # Read and parse the list from file
-    with open(txt_path, 'r', encoding='utf-8') as file:
-        try:
-            content = file.read()
-            matrix = ast.literal_eval(content)
-        except Exception as e:
-            print("Failed to parse the list from the file.")
-            print("Error:", e)
-            sys.exit(1)
-
-    df1 = pd.DataFrame(matrix[1:], columns=matrix[0])
-    # Set first column as index
-    df1 = df1.set_index('')
-    # Remove the name of the index
-    df1.index.name = None
-    # Now we have a clean DataFrame
-    d1, e1_matrix = parse_relation_matrix(df1)
-    e1_tc = compute_transitive_closure(d1)
-    updated_df1 = update_matrix_with_tc(df1, e1_tc)
-    final_e1 = e1_matrix.union(e1_tc)
-    # Store the original DataFrame for reference
-    original_df = df1.copy()
-    title="BPIC19 Example from Paper"
-    while True:
-        print("="*80)
-        print(f"Executing for: {title}")
-        print("="*80)
-        print("1. Show original input matrix")
-        print("2. Update matrix with transitive closure")
-        print("3. Parsed Directly-Follows Set (D):")        
-        print("4. Final Combined Eventually-Follows Set (E):")
-        print("5. Perform Relaxation Operations on the matrix:")
-        print("6. Generated Binary Constraints:")
-        print("7. Determine Conformance Rate:")
-        print("0. Exit")
-        choice = input("Enter your choice (0-7): ")
-
-        if choice == "1": #Show original input matrix
-            print("\n1. Original Input Matrix:")
-            print(original_df)
-        elif choice == "2": #Update matrix with transitive closure
-            print("\n2. Matrix Updated with Transitive Closure Symbols:")
-            d1, e1_matrix = parse_relation_matrix(df1)
-            e1_tc = compute_transitive_closure(d1)
-            updated_df1 = update_matrix_with_tc(df1, e1_tc)
-            print(updated_df1)
-        elif choice == "3": #Parsed Directly-Follows Set (D):
-            print("\n3. Parsed Directly-Follows Set (D):")
-            d1, e1_matrix = parse_relation_matrix(df1)
-            print(sorted(list(d1)))
-        elif choice == "4": #Final Combined Eventually-Follows Set (E):
-            print("\n4. Final Combined Eventually-Follows Set (E):")
-            d1, e1_matrix = parse_relation_matrix(df1)
-            e1_tc = compute_transitive_closure(d1)
-            updated_df1 = update_matrix_with_tc(df1, e1_tc)
-            final_e1 = e1_matrix.union(e1_tc)
-            print(sorted(list(final_e1)))
-        elif choice == "5": #Perform Relaxation operations on the matrix.
-            updated_df1=perform_relaxation_operations(updated_df1)
-            d1, final_e1 = parse_relation_matrix(updated_df1)
-            #e2_tc = compute_transitive_closure(d2)
-            e1_tc=set()
-        elif choice == "6": #Generated Binary Constraints:
-            constraints = generate_binary_constraints(d1, final_e1,e1_tc)
-            print("\n5. Generated Binary Constraints:")
-            if not constraints: print("None")
-            else:
-                for constraint in sorted(list(constraints), key=lambda x: str(x)):
-                    print(constraint)
-        elif choice == "7": #Conformance Rate
-            constraints = generate_binary_constraints(d1, final_e1,e1_tc)
-            constraint_strs = [str(constraint) for constraint in constraints]
-            determine_conformance_rate_function(constraints)
-        elif choice == "0":
-            print("Exiting.")
-            break
+    # Call the matrix function
+    df,unique_labels_for_silent_transitions = matrix_function(pnml_path)
+    if df is not None:
+        df1=df
+        if skip_flag=='TRUE':
+            print("Before removing silent transitions:")
+            print(df1)
+            print("Silent transitions to be removed:", unique_labels_for_silent_transitions)
+            df1=resolve_silent_successors(df1, unique_labels_for_silent_transitions)
+             # Step 2: Drop silent transitions
+            df1 = df1.drop(index=unique_labels_for_silent_transitions, columns=unique_labels_for_silent_transitions)
+            print("After dropping silent transitions:")
+            print(df1)
         else:
-            print("Invalid choice. Please try again.") 
+            print("Silent transitions are retained in the matrix as per user choice.")
+            print(df1)
+        # Remove leading/trailing whitespace
+        #df1 = df1.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+        #print(df1)
+        #df1 = pd.DataFrame(df, columns=transition_names)
+        # Set first column as index
+        #df1 = df1.set_index('')
+        # Remove the name of the index
+        #df1.index.name = None
+        # Now we have a clean DataFrame
+        d1, e1_matrix = parse_relation_matrix(df1)
+        #print("Directly-Follows Set (D):",sorted(list(d1)))
+        e1_tc = compute_transitive_closure(d1)
+        #print("Transitive Closure Set (TC_D):",sorted(list(e1_tc)))
+        updated_df1 = update_matrix_with_tc(df1, e1_tc)
+        final_e1 = e1_matrix.union(e1_tc)
+        # Store the original DataFrame for reference
+        original_df = df1.copy()
+        title="BPIC19 Example from Paper"
+        while True:
+            print("="*80)
+            print(f"Executing for: {title}")
+            print("="*80)
+            print("1. Show original input matrix")
+            print("2. Update matrix with transitive closure")
+            print("3. Parsed Directly-Follows Set (D):")        
+            print("4. Final Combined Eventually-Follows Set (E):")
+            print("5. Perform Relaxation Operations on the matrix:")
+            print("6. Generated Binary Constraints:")
+            print("7. Determine Conformance Rate:")
+            print("0. Exit")
+            choice = input("Enter your choice (0-7): ")
+
+            if choice == "1": #Show original input matrix
+                print("\n1. Original Input Matrix:")
+                print(original_df)
+            elif choice == "2": #Update matrix with transitive closure
+                print("\n2. Matrix Updated with Transitive Closure Symbols:")
+                d1, e1_matrix = parse_relation_matrix(df1)
+                e1_tc = compute_transitive_closure(d1)
+                updated_df1 = update_matrix_with_tc(df1, e1_tc)
+                print(updated_df1)
+            elif choice == "3": #Parsed Directly-Follows Set (D):
+                print("\n3. Parsed Directly-Follows Set (D):")
+                d1, e1_matrix = parse_relation_matrix(df1)
+                print(sorted(list(d1)))
+            elif choice == "4": #Final Combined Eventually-Follows Set (E):
+                print("\n4. Final Combined Eventually-Follows Set (E):")
+                d1, e1_matrix = parse_relation_matrix(df1)
+                e1_tc = compute_transitive_closure(d1)
+                updated_df1 = update_matrix_with_tc(df1, e1_tc)
+                final_e1 = e1_matrix.union(e1_tc)
+                print(sorted(list(final_e1)))
+            elif choice == "5": #Perform Relaxation operations on the matrix.
+                updated_df1=perform_relaxation_operations(updated_df1)
+                d1, final_e1 = parse_relation_matrix(updated_df1)
+                #e2_tc = compute_transitive_closure(d2)
+                e1_tc=set()
+            elif choice == "6": #Generated Binary Constraints:
+                constraints = generate_binary_constraints(d1, final_e1,e1_tc)
+                print("\n5. Generated Binary Constraints:")
+                if not constraints: print("None")
+                else:
+                    for constraint in sorted(list(constraints), key=lambda x: str(x)):
+                        print(constraint)
+            elif choice == "7": #Conformance Rate
+                constraints = generate_binary_constraints(d1, final_e1,e1_tc)
+                constraint_strs = [str(constraint) for constraint in constraints]
+                determine_conformance_rate_function(constraints)
+            elif choice == "0":
+                print("Exiting.")
+                break
+            else:
+                print("Invalid choice. Please try again.") 
+    else:
+        print("Failed to create the alpha relations matrix.")
+
+     
 
 
 
