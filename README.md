@@ -9,14 +9,15 @@ This repository provides a Python command-line tool for interactively manipulati
 - Python 3.x
 - pandas
 - pm4py
-- Require [BPIC19_3way_IbeforeGR_standardPO_complete.xes](https://icpmconference.org/2019/icpm-2019/contests-challenges/bpi-challenge-2019/) file in the current folder
+- Required [BPIC19_3way_IbeforeGR_standardPO_complete.xes](https://zenodo.org/records/17295283/) file in the current folder. It contains event logs for the conformance checking and can be downloaded from Zenado(https://zenodo.org/records/17295283).
+- Requires a PNML file, which is used as the process model (workflow net).
 
 ### Installation
 
 Install the required Python packages:
 
 ```bash
-pip install pandas pm4py
+pip install -r requirements.txt
 ```
 
 ### Usage
