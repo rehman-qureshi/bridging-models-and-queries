@@ -9,7 +9,7 @@ This repository provides a Python command-line tool for interactively manipulati
 - Python 3.x
 - pandas
 - pm4py
-- Required [BPIC19_3way_IbeforeGR_standardPO_complete.xes](https://zenodo.org/records/17295283/) file in the current folder. It contains event logs for the conformance checking and can be downloaded from Zenado(https://zenodo.org/records/17295283).
+- Required [BPIC19_3way_IbeforeGR_standardPO_complete.xes](https://zenodo.org/records/17295283) file in the current folder. It contains event logs for the conformance checking and can be downloaded from [Zenado](https://zenodo.org/records/17295283).
 - Requires a PNML file, which is used as the process model (workflow net).
 
 ### Installation
